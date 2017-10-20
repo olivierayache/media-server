@@ -30,6 +30,7 @@ import java.io.IOException;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.MediaType;
 import org.mobicents.media.server.utils.Text;
@@ -120,6 +121,11 @@ public class MyTestConnection extends BaseConnection {
 
     @Override
     protected void onCreated() throws Exception {
+        this.created = true;
+    }
+   
+    @Override
+    protected void onCreated(BindingInformation information) throws Exception {
         this.created = true;
     }
 

@@ -312,6 +312,41 @@ public class RTPDataChannel {
         }
     }
 
+    
+    /**
+     * Binds channel to the specified port.
+     *
+     * @throws SocketException
+     */
+    public void bind(boolean isLocal, int port) throws IOException, SocketException {
+    	try {
+            dataChannel = udpManager.open(rtpHandler);
+            
+            //if control enabled open rtcp channel as well
+            if (channelsManager.getIsControlEnabled()) {
+                controlChannel = udpManager.open(new RTCPHandler());
+            }
+        } catch (IOException e) {
+            throw new SocketException(e.getMessage());
+        }
+        //bind data channel
+    	if(!isLocal) {
+    		this.rxBuffer.setBufferInUse(true);
+    		udpManager.bind(dataChannel, port);
+    	} else {
+    		this.rxBuffer.setBufferInUse(false);
+    		udpManager.bindLocal(dataChannel, port);
+    	}
+    	
+        //if control enabled open rtcp channel as well
+        if (channelsManager.getIsControlEnabled()) {
+        	if(!isLocal)
+        		udpManager.bind(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        	else
+        		udpManager.bindLocal(controlChannel, dataChannel.socket().getLocalPort() + 1);
+        }
+    }
+    
     /**
      * Gets the port number to which this channel is bound.
      *

@@ -87,4 +87,13 @@ public class PortManager {
     public int next() {
     	return high-(currPort.getAndAdd(1)%step)*2;        
     }
+    
+    /**
+     * Skip the next port probably available.
+     *
+     * 
+     */
+    public void skip() {
+    	currPort.getAndIncrement();
+    }
 }

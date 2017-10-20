@@ -36,6 +36,7 @@ import org.mobicents.media.server.io.ss7.SS7DataChannel;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.ConnectionMode;
@@ -124,8 +125,8 @@ public class BaseSS7EndpointImpl extends BaseEndpointImpl {
      * 
      * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
      */
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	Connection connection=super.createConnection(type,isLocal);
+    public Connection createConnection(ConnectionType type,Boolean isLocal, BindingInformation... informations) throws ResourceUnavailableException {
+    	Connection connection=super.createConnection(type,isLocal,informations);
     	audioSplitter.addOutsideComponent(((BaseConnection)connection).getAudioComponent());
     	oobSplitter.addOutsideComponent(((BaseConnection)connection).getOOBComponent());
     	

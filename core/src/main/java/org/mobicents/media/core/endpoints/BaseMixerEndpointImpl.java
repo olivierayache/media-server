@@ -34,6 +34,7 @@ import org.mobicents.media.server.component.audio.AudioMixer;
 import org.mobicents.media.server.component.oob.OOBMixer;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -80,8 +81,8 @@ public class BaseMixerEndpointImpl extends BaseEndpointImpl {
      * 
      * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
      */
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
-    	Connection connection=super.createConnection(type,isLocal);
+    public Connection createConnection(ConnectionType type,Boolean isLocal, BindingInformation... informations) throws ResourceUnavailableException {
+    	Connection connection=super.createConnection(type,isLocal,informations);
     	audioMixer.addComponent(((BaseConnection)connection).getAudioComponent());
     	oobMixer.addComponent(((BaseConnection)connection).getOOBComponent());
         return connection;

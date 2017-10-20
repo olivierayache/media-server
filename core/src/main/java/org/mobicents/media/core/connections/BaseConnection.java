@@ -38,6 +38,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Task;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.Connection;
 import org.mobicents.media.server.spi.ConnectionEvent;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -219,7 +220,7 @@ public abstract class BaseConnection implements Connection {
     /**
      * Initiates transition from NULL to HALF_OPEN state.
      */
-    public void bind() throws Exception {
+    public void bind(BindingInformation... informations) throws Exception {
         synchronized (stateMonitor) {
             //check current state
             if (this.state != ConnectionState.NULL) {
@@ -227,7 +228,11 @@ public abstract class BaseConnection implements Connection {
             }
 
             //execute call back
-            this.onCreated();
+            if (informations != null && informations.length != 0){
+                this.onCreated(informations[0]);
+            }else{
+                this.onCreated(null);
+            }
 
             //update state
             setState(ConnectionState.HALF_OPEN);
@@ -310,6 +315,13 @@ public abstract class BaseConnection implements Connection {
      * Called when connection created.
      */
     protected abstract void onCreated() throws Exception;
+    
+    /**
+     * Called when connection created.
+     * @param information
+     * @throws Exception 
+     */
+    protected abstract void onCreated(BindingInformation information) throws Exception;
 
     /**
      * Called when connected moved to OPEN state.

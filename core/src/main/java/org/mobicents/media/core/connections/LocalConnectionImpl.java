@@ -33,6 +33,7 @@ import org.mobicents.media.server.component.audio.AudioComponent;
 import org.mobicents.media.server.component.oob.OOBComponent;
 import org.mobicents.media.server.impl.rtp.ChannelsManager;
 import org.mobicents.media.server.impl.rtp.LocalDataChannel;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.utils.Text;
 
 /**
@@ -116,6 +117,11 @@ public class LocalConnectionImpl extends BaseConnection {
     
     @Override
     protected void onCreated() throws Exception {
+        //descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
+    }
+    
+    @Override
+    protected void onCreated(BindingInformation information) throws Exception {
         //descriptor = template.getSDP("127.0.0.1", "LOCAL", "ENP", getEndpoint().getLocalName(), 0, 0);
     }
 

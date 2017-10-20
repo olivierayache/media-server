@@ -47,6 +47,7 @@ import org.mobicents.media.server.impl.rtp.sdp.RTPFormats;
 import org.mobicents.media.server.impl.rtp.sdp.AVProfile;
 import org.mobicents.media.server.impl.rtp.sdp.SdpComparator;
 import org.mobicents.media.server.impl.rtp.sdp.SessionDescription;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.dsp.Codec;
 import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.ConnectionType;
@@ -352,18 +353,42 @@ public class RtpConnectionImpl extends BaseConnection implements RTPChannelListe
     @Override
     protected void onCreated() throws Exception {
         if (this.isAudioCapabale)
-            rtpAudioChannel.bind(isLocal);        
+            rtpAudioChannel.bind(isLocal);         
 
-        if(!isLocal)
-        	descriptor = template.getSDP(channelsManager.getBindAddress(),
+       if(!isLocal)
+        descriptor = template.getSDP(channelsManager.getBindAddress(),
                 "IN", "IP4",
                 channelsManager.getBindAddress(),
                 rtpAudioChannel.getLocalPort(),0);
-        else
-        	descriptor = template.getSDP(channelsManager.getLocalBindAddress(),
-                    "IN", "IP4",
-                    channelsManager.getLocalBindAddress(),
-                    rtpAudioChannel.getLocalPort(),0);
+       else
+       	descriptor = template.getSDP(channelsManager.getLocalBindAddress(),
+                   "IN", "IP4",
+                   channelsManager.getLocalBindAddress(),
+                   rtpAudioChannel.getLocalPort(),0);
+    }    
+    
+     @Override
+    protected void onCreated(BindingInformation information) throws Exception {
+       final SessionDescription sessionDescription = new SessionDescription();
+       if (this.isAudioCapabale){
+           if (information != null){
+            sessionDescription.init(information.getDescriptor());
+            rtpAudioChannel.bind(isLocal, sessionDescription.getAudioDescriptor().getPort()); 
+           }else{
+            rtpAudioChannel.bind(isLocal);         
+           }
+       }
+
+       if(!isLocal)
+        descriptor = template.getSDP(channelsManager.getBindAddress(),
+                "IN", "IP4",
+                channelsManager.getBindAddress(),
+                rtpAudioChannel.getLocalPort(),0);
+       else
+       	descriptor = template.getSDP(channelsManager.getLocalBindAddress(),
+                   "IN", "IP4",
+                   channelsManager.getLocalBindAddress(),
+                   rtpAudioChannel.getLocalPort(),0);
     }    
     
     @Override

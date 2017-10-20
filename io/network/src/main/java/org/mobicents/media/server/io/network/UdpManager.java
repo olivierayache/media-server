@@ -283,6 +283,8 @@ public class UdpManager {
         //select port if wildcarded
         if (port == PORT_ANY) {
             port = portManager.next();
+        }else{
+            portManager.skip();
         }
         //try bind
         SocketException ex = null;
@@ -311,6 +313,8 @@ public class UdpManager {
         //select port if wildcarded
         if (port == PORT_ANY) {
             port = localPortManager.next();
+        }else{
+            portManager.skip();
         }
         //try bind
         SocketException ex = null;

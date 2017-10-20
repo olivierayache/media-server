@@ -44,6 +44,7 @@ import org.mobicents.media.server.spi.ConnectionMode;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointState;
 import org.mobicents.media.server.spi.MediaType;
+import org.mobicents.media.server.spi.BindingInformation;
 import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
@@ -181,7 +182,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
      * 
      * @see org.mobicents.media.server.spi.Endpoint#createConnection(org.mobicents.media.server.spi.ConnectionMode);
      */
-    public Connection createConnection(ConnectionType type,Boolean isLocal) throws ResourceUnavailableException {
+    public Connection createConnection(ConnectionType type,Boolean isLocal, BindingInformation... informations) throws ResourceUnavailableException {
     	
     	Connection connection=null;
     	switch(type)
@@ -197,7 +198,7 @@ public abstract class BaseEndpointImpl implements Endpoint {
     	connection.setIsLocal(isLocal);
         
         try {
-            ((BaseConnection)connection).bind();
+            ((BaseConnection)connection).bind(informations);
         } catch (Exception e) {
             e.printStackTrace();
             throw new ResourceUnavailableException(e.getMessage());
