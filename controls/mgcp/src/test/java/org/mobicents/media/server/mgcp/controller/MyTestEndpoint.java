@@ -34,6 +34,7 @@ import org.mobicents.media.server.spi.ResourceUnavailableException;
 import org.mobicents.media.server.spi.TooManyConnectionsException;
 import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.scheduler.Scheduler;
+import org.mobicents.media.server.spi.BindingInformation;
 
 /**
  *
@@ -128,5 +129,9 @@ public class MyTestEndpoint implements Endpoint {
     }
     
     public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+    }
+
+    public Connection createConnection(ConnectionType type, Boolean isLocal, BindingInformation... informations) throws ResourceUnavailableException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

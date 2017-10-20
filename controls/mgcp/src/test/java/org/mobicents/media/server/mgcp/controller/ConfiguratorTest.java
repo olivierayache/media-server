@@ -28,6 +28,7 @@ import org.mobicents.media.server.spi.dsp.DspFactory;
 import org.mobicents.media.server.scheduler.Scheduler;
 import org.mobicents.media.server.scheduler.Clock;
 import org.mobicents.media.server.scheduler.DefaultClock;
+import org.mobicents.media.server.spi.BindingInformation;
 
 /**
  *
@@ -159,6 +160,10 @@ public class ConfiguratorTest {
         }
         
         public void releaseResource(MediaType mediaType, ComponentType componentType) {    
+        }
+
+        public Connection createConnection(ConnectionType type, Boolean isLocal, BindingInformation... informations) throws ResourceUnavailableException {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
 }
