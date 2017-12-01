@@ -20,6 +20,11 @@
                 <source>src/main/config/mgcp-conf.properties</source>
                 <destName>conf/mgcp-conf.properties</destName>
             </file>
+            
+            <file>
+                <source>src/main/config/example-cache.xml</source>
+                <destName>conf/example-cache.xml</destName>
+            </file>
 
 <!-- Deploy -->
             <!-- file>

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
-	xmlns="urn:jboss:bean-deployer:2.0">
+	xsi:schemaLocation="urn:jboss:bean-deployer:2.0 http://jboss.org/schemas/bean-deployer_2_0.xsd
+                            urn:jboss:jboss-bean-common:2.0 http://jboss.org/schemas/jboss-bean-common_2_0.xsd"
+        xmlns="urn:jboss:bean-deployer:2.0">
 
     <!-- System clock -->
     <bean name="SystemClock" class="org.mobicents.media.server.scheduler.DefaultClock"/>
@@ -16,7 +18,7 @@
         <constructor>
             <parameter><inject bean="Scheduler"/></parameter>
         </constructor>
-        <property name="bindAddress">127.0.0.1</property>
+        <property name="bindAddress">192.168.1.55</property>
         <property name="localBindAddress">127.0.0.1</property>
 		<property name="localNetwork">127.0.0.1</property>
 		<property name="localSubnet">255.255.255.255</property>
@@ -73,6 +75,28 @@
 	<property name="dtmfDetectorDbi">-35</property>
     </bean>
     
+     <bean name="HttpEndpointFactory" class ="com.thales.ctrl.endpoints.HttpEndpointFactory">
+        <constructor factoryMethod="getInstance"></constructor>
+        <property name="ivr">mobicents/ivr/$</property>
+<!--            <bean class ="com.thales.ctrl.endpoints.EndpointQueue$Holder">
+                <property name="localName">mobicents/ivr/$</property>
+                <property name="installer"><inject bean="IVR"/></property>                        
+            </bean>
+        </property> -->
+        <property name="bridge">mobicents/bridge/$</property>
+<!--            <bean class ="com.thales.ctrl.endpoints.EndpointQueue$Holder">
+                <property name="localName">mobicents/bridge/$</property>
+                <property name="installer"><inject bean="Bridge"/></property>                        
+            </bean>
+        </property> -->
+        <property name="cnf">mobicents/cnf/$</property>
+<!--            <bean class ="com.thales.ctrl.endpoints.EndpointQueue$Holder">
+                <property name="localName">mobicents/cnf/$</property>
+                <property name="installer"><inject bean="CNF"/></property>        
+            </bean>
+        </property> -->
+    </bean>
+    
     <!-- MGCP Controller definition -->
     <bean name="MGCP" class ="org.mobicents.media.server.mgcp.controller.Controller">
         <property name="udpInterface"><inject bean="localhost"/></property>
@@ -81,6 +105,36 @@
         <property name="server"><inject bean="MediaServer"/></property>
         <property name="configuration">mgcp-conf.xml</property>
 	<property name="poolSize">25</property>
+    </bean>  
+    
+    <bean name="HACacheManager" class="org.mobicents.media.ha.cache.CacheManager">
+       <constructor factoryMethod="getInstance"/> 
+       <property name="cacheConf">${mms.home.dir}/conf/example-cache.xml</property>
+        <property name="cacheName">replicated</property>
+    </bean>
+    
+    <bean name="HA" class="com.thales.mms.ha.MediaServerReloader">
+        <property name="cacheManager"><inject bean="HACacheManager"/></property>
+    </bean>
+    
+    <bean name="HADataReceiver" class="org.mobicents.media.server.impl.resource.audio.ha.RecorderReceiverHA">
+        <constructor>
+            <parameter>eth0</parameter>
+            <parameter>228.10.10.157</parameter>
+        </constructor>
+    </bean>
+    
+      <!-- HTTP Controller definition -->
+    <bean name="HttpController" class="com.thales.mms.ha.ctrl.PacqtrMmsHttpControllerHa">
+        <property name="address">0.0.0.0</property>
+        <property name="port">8082</property>
+        <property name="listenerFactory">
+            <bean class ="com.thales.mms.ctrl.participant.ListenerFactory">
+                <property name="announcementUri">file:////home/ayache/Thales/mms-standalone/server-standalone/target/mms-standalone-pojo/media/8kalaw.wav</property>
+            </bean>
+        </property>
+        <property name="server"><inject bean="MediaServer"/></property>
+        <property name="reloader"><inject bean="HA"/></property>                
     </bean>    
     
     <!-- Media Server -->
