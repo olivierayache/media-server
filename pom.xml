@@ -64,7 +64,8 @@
         <module>client</module>
         <module>controls</module>
         <module>media-server-docs</module>
-        <module>bootstrap</module>        
+        <module>bootstrap</module>
+	<module>HA</module>
     </modules>
 
     <dependencies>
