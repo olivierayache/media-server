@@ -39,8 +39,7 @@ Some of the commonly used MS control protocols are <ulink url="http://www.mobice
 The Mobicents JSR-309 Impl is first and only open source implementation of JSR-309 available as of today. To further understand the JSR-309 API, download specs from <ulink url="http://jcp.org/en/jsr/detail?id=309">here</ulink>
 </para>
 <para>
-“The latest release of Mobicents JSR-309 Impl is part of binary media server release and can
-be found under clients folder”.
+The latest release of Mobicents JSR-309 Impl is part of binary media server release and can be found under clients folder.
 </para>
 
 <para>

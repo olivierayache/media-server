@@ -18,7 +18,7 @@
 		<dependencySet>
 			<outputDirectory>/lib</outputDirectory>
 			<unpack>false</unpack>
-			<scope>runtime</scope>
+			<!--<scope>runtime</scope>-->
 		</dependencySet>
 	</dependencySets>
 	<componentDescriptors>

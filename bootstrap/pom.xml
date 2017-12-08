@@ -13,11 +13,30 @@
     <artifactId>bootstrap</artifactId>
     <name>Bootstrap</name>
     
+    <properties>
+        <version.org.jboss.xnio>3.3.6.Final</version.org.jboss.xnio>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.mobicents.media</groupId>
             <artifactId>spi</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.media</groupId>
+            <artifactId>HA</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mobicents.media.controls</groupId>
+            <artifactId>rest-core</artifactId>
+            <version>${project.version}</version>
+<!--            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.mobicents.media.io</groupId>
@@ -94,16 +113,22 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
-        </dependency>
+        </dependency>-->
 	<dependency>
             <groupId>org.jboss.microcontainer</groupId>
             <artifactId>jboss-dependency</artifactId>
             <version>2.0.6.GA</version>
-        </dependency>
+	    <exclusions>
+	        <exclusion>
+	            <groupId>org.jboss.logging</groupId>
+	            <artifactId>jboss-logging-spi</artifactId>
+	        </exclusion>
+	    </exclusions>
+	</dependency>
         <dependency>
             <groupId>org.jboss.microcontainer</groupId>
             <artifactId>jboss-kernel</artifactId>
@@ -113,11 +138,43 @@
             <groupId>org.jboss.aop</groupId>
             <artifactId>jboss-aop</artifactId>
             <version>2.2.2.GA</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging-spi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.microcontainer</groupId>
             <artifactId>jboss-aop-mc-int</artifactId>
             <version>${version.jboss.microcontainer}</version>
+        </dependency>
+<!--        <dependency>
+            <groupId>org.jboss.xnio</groupId>
+            <artifactId>xnio-nio</artifactId>
+            <version>3.3.6.Final</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.xnio</groupId>
+            <artifactId>xnio-api</artifactId>
+            <version>3.3.6.Final</version>
+                        <scope>runtime</scope>
+        </dependency>-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+                <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.9.1</version>
         </dependency>
     </dependencies>
 	<!--  -->
@@ -134,6 +191,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.0</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/main/assembly/descriptor.xml</descriptor>
@@ -144,7 +202,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>directory-inline</goal>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
