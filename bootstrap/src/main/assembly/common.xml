@@ -5,6 +5,7 @@
                 <destName>bin/run.jar</destName>
             </file>
 
+
 <!-- Conf -->
             <file>
                 <source>src/main/config/bootstrap-beans.xml</source>
@@ -14,6 +15,11 @@
             <file>
                 <source>src/main/config/log4j.xml</source>
                 <destName>conf/log4j.xml</destName>
+            </file>
+            
+            <file>
+                <source>src/main/config/log4j2.xml</source>
+                <destName>conf/log4j2.xml</destName>
             </file>
             
             <file>

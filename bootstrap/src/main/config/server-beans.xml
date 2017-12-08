@@ -75,7 +75,7 @@
 	<property name="dtmfDetectorDbi">-35</property>
     </bean>
     
-     <bean name="HttpEndpointFactory" class ="com.thales.ctrl.endpoints.HttpEndpointFactory">
+     <bean name="HttpEndpointFactory" class ="org.mobicents.media.controls.rest.core.factory.EndpointFactory">
         <constructor factoryMethod="getInstance"></constructor>
         <property name="ivr">mobicents/ivr/$</property>
 <!--            <bean class ="com.thales.ctrl.endpoints.EndpointQueue$Holder">
@@ -113,29 +113,32 @@
         <property name="cacheName">replicated</property>
     </bean>
     
-    <bean name="HA" class="com.thales.mms.ha.MediaServerReloader">
+<!--    <bean name="HA" class="com.thales.mms.ha.MediaServerReloader">
         <property name="cacheManager"><inject bean="HACacheManager"/></property>
-    </bean>
+    </bean>-->
     
-    <bean name="HADataReceiver" class="org.mobicents.media.server.impl.resource.audio.ha.RecorderReceiverHA">
+<!--    <bean name="HADataReceiver" class="org.mobicents.media.server.impl.resource.audio.ha.RecorderReceiverHA">
         <constructor>
             <parameter>eth0</parameter>
             <parameter>228.10.10.157</parameter>
         </constructor>
-    </bean>
+    </bean>-->
     
       <!-- HTTP Controller definition -->
-    <bean name="HttpController" class="com.thales.mms.ha.ctrl.PacqtrMmsHttpControllerHa">
-        <property name="address">0.0.0.0</property>
-        <property name="port">8082</property>
-        <property name="listenerFactory">
+    <bean name="HttpController" class="org.mobicents.media.controls.rest.core.controller.Controller" access-mode="ALL">
+        <constructor>
+        <parameter>0.0.0.0</parameter>
+        <parameter>8082</parameter>
+        </constructor>
+<!--        <property name="listenerFactory">
             <bean class ="com.thales.mms.ctrl.participant.ListenerFactory">
                 <property name="announcementUri">file:////home/ayache/Thales/mms-standalone/server-standalone/target/mms-standalone-pojo/media/8kalaw.wav</property>
             </bean>
-        </property>
+        </property>-->
         <property name="server"><inject bean="MediaServer"/></property>
-        <property name="reloader"><inject bean="HA"/></property>                
+        <!--<property name="reloader"><inject bean="HA"/></property>-->                
     </bean>    
+    
     
     <!-- Media Server -->
     <bean name="MediaServer" class="org.mobicents.media.core.Server">
