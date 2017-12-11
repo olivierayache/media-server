@@ -19,10 +19,15 @@
 package org.mobicents.media.controls.rest.core.endpoints;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.StreamSupport;
+import org.jboss.util.collection.Iterators;
 import org.mobicents.media.Component;
 import org.mobicents.media.ComponentType;
 import org.mobicents.media.controls.rest.api.EndpointType;
@@ -46,21 +51,22 @@ import org.mobicents.media.server.spi.recorder.Recorder;
  */
 public class MediaSessionMember {
 
-    private Connection remoteConnection;
-    private Connection localCnfConnection;
-    private Connection localIvrConnection;
-    private Connection localCnfDestConnection;
+    private static final int remoteConnection = 0;
+    private static final int localCnfConnection = 1;
+    private static final int localIvrConnection = 2;
+    private static final int localCnfDestConnection = 3;
+    private final Connection[] connections = new Connection[4];
+    private final Component[] resources = new Component[ComponentType.values().length];
     private MediaSessionMemberDto.MemberType type;
-    private final Map<ComponentType, Component> resources = new EnumMap<ComponentType, Component>(ComponentType.class);
 
     public void init(MediaSessionMemberDto memberDto) throws InitFailedException {
         try {
             Endpoint bridgeEndpoint = EndpointQueue.getInstance().poll(EndpointType.BRIDGE);
             try {
-                remoteConnection = bridgeEndpoint.createConnection(ConnectionType.RTP, Boolean.FALSE);
-                memberDto.setLocalSdp(remoteConnection.getDescriptor());
+                connections[remoteConnection] = bridgeEndpoint.createConnection(ConnectionType.RTP, Boolean.FALSE);
+                memberDto.setLocalSdp(connections[remoteConnection].getDescriptor());
             } catch (ResourceUnavailableException ex) {
-                destroyConnection(remoteConnection, ConnectionType.RTP, false);
+                destroyConnection(remoteConnection, false);
                 throw new InitFailedException(ex);
             }
 
@@ -73,13 +79,13 @@ public class MediaSessionMember {
             type = memberDto.getType();
             switch (memberDto.getType()) {
                 case EMITER:
-                    remoteConnection.setMode(ConnectionMode.RECV_ONLY);
+                    connections[remoteConnection].setMode(ConnectionMode.RECV_ONLY);
                     break;
                 case RECEIVER:
-                    remoteConnection.setMode(ConnectionMode.SEND_ONLY);
+                    connections[remoteConnection].setMode(ConnectionMode.SEND_ONLY);
                     break;
                 case BOTH:
-                    remoteConnection.setMode(ConnectionMode.SEND_RECV);
+                    connections[remoteConnection].setMode(ConnectionMode.SEND_RECV);
                     break;
             }
         } catch (ModeNotSupportedException ex) {
@@ -99,91 +105,96 @@ public class MediaSessionMember {
 
         if (resourceEndpoint != null) {
             if (memberDto.isRecorderNeeded()) {
-                resources.put(ComponentType.RECORDER, (Recorder) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.RECORDER));
+                resources[ComponentType.RECORDER.getType()] = (Recorder) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.RECORDER);
             }
             if (memberDto.isAnnouncementNeeded()) {
-                resources.put(ComponentType.PLAYER, (Player) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.PLAYER));
+                resources[ComponentType.PLAYER.getType()] = (Player) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.PLAYER);
             }
             if (memberDto.isDtmfDetectorNeeded()) {
-                resources.put(ComponentType.DTMF_DETECTOR, (DtmfDetector) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR));
+                resources[ComponentType.DTMF_DETECTOR.getType()] = (DtmfDetector) resourceEndpoint.getResource(MediaType.AUDIO, ComponentType.DTMF_DETECTOR);
             }
             try {
-                localIvrConnection = bridgeEndpoint.createConnection(ConnectionType.LOCAL, Boolean.TRUE);
-                localIvrConnection.setOtherParty(resourceEndpoint.createConnection(ConnectionType.LOCAL, Boolean.TRUE));
+                connections[localIvrConnection] = bridgeEndpoint.createConnection(ConnectionType.LOCAL, Boolean.TRUE);
+                connections[localIvrConnection].setOtherParty(resourceEndpoint.createConnection(ConnectionType.LOCAL, Boolean.TRUE));
             } catch (ResourceUnavailableException ex) {
-                destroyConnection(localIvrConnection, ConnectionType.LOCAL, false);
+                destroyConnection(localIvrConnection, false);
                 throw new InitFailedException(ex);
             } catch (IOException ex) {
-                destroyConnection(localIvrConnection, ConnectionType.LOCAL, false);
+                destroyConnection(localIvrConnection, false);
                 throw new InitFailedException(ex);
             }
-            localIvrConnection.setMode(ConnectionMode.SEND_RECV);
+            connections[localIvrConnection].setMode(ConnectionMode.SEND_RECV);
         }
     }
 
     public void setLocalCnfDestConnection(Connection localCnfDestConnection) {
-        this.localCnfDestConnection = localCnfDestConnection;
+        connections[this.localCnfDestConnection] = localCnfDestConnection;
     }
 
     public Connection getLocalCnfDestConnection() {
-        return localCnfDestConnection;
+        return connections[localCnfDestConnection];
     }
 
     public void connectToRemote(byte[] remoteSdp) throws IOException {
-        remoteConnection.setOtherParty(remoteSdp);
+        connections[remoteConnection].setOtherParty(remoteSdp);
     }
 
     public void disconnectFromRemote() throws IOException {
-        destroyConnection(remoteConnection, ConnectionType.RTP, false);
+        destroyConnection(remoteConnection, false);
     }
 
     public void connectToPeer() throws IOException {
-        Component get = resources.get(ComponentType.PLAYER);
-        if (get != null){
+        Player get = (Player) resources[ComponentType.PLAYER.getType()];
+        if (get != null && get.isStarted()) {
             get.deactivate();
         }
         try {
-            localCnfConnection = remoteConnection.getEndpoint().createConnection(ConnectionType.LOCAL, Boolean.TRUE);
-            localCnfConnection.setOtherParty(localCnfDestConnection);
+            connections[localCnfConnection] = connections[remoteConnection].getEndpoint().createConnection(ConnectionType.LOCAL, Boolean.TRUE);
+            connections[localCnfConnection].setOtherParty(connections[localCnfDestConnection]);
             switch (type) {
                 case EMITER:
-                    localCnfConnection.setMode(ConnectionMode.SEND_ONLY);
+                    connections[localCnfConnection].setMode(ConnectionMode.SEND_ONLY);
                     break;
                 case RECEIVER:
-                    localCnfConnection.setMode(ConnectionMode.RECV_ONLY);
+                    connections[localCnfConnection].setMode(ConnectionMode.RECV_ONLY);
                     break;
                 case BOTH:
-                    localCnfConnection.setMode(ConnectionMode.SEND_RECV);
+                    connections[localCnfConnection].setMode(ConnectionMode.SEND_RECV);
                     break;
             }
         } catch (ModeNotSupportedException ex) {
             throw new IllegalStateException(ex);
         } catch (ResourceUnavailableException ex) {
-            System.out.println(remoteConnection.getEndpoint());
             throw new IOException(ex);
         }
     }
 
     public void disconnectFromPeer() {
-        destroyConnection(localCnfDestConnection, ConnectionType.LOCAL, false);
-        destroyConnection(localCnfConnection, ConnectionType.LOCAL, false);
+        destroyConnection(localCnfDestConnection, false);
+        destroyConnection(localCnfConnection, false);
     }
 
-    public Map<ComponentType, Component> getResources() {
-        return resources;
+    public Component getResource(ComponentType type) {
+        return resources[type.getType()];
     }
 
     public void destroy() {
-        destroyConnection(remoteConnection, ConnectionType.RTP, true);
-        destroyConnection(localCnfConnection, ConnectionType.LOCAL, true);
-        destroyConnection(localCnfDestConnection, ConnectionType.LOCAL, false);
-        destroyConnection(localIvrConnection, ConnectionType.LOCAL, true);
+        for (Component c : resources) {
+            if (c != null) {
+                c.deactivate();
+            }
+        }
+        destroyConnection(remoteConnection, true);
+        destroyConnection(localCnfConnection, true);
+        destroyConnection(localCnfDestConnection, false);
+        destroyConnection(localIvrConnection, true);
     }
 
-    private void destroyConnection(Connection connection, ConnectionType type, boolean releaseEndpoint) {
-        if (connection != null) {
-            Endpoint endpoint = connection.getEndpoint();
-            endpoint.deleteConnection(connection);
+    private void destroyConnection(int connection, boolean releaseEndpoint) {
+        if (connections[connection] != null) {
+            Endpoint endpoint = connections[connection].getEndpoint();
+            endpoint.deleteConnection(connections[connection]);
+            connections[connection] = null;
             if (releaseEndpoint) {
                 if (endpoint.getActiveConnectionsCount() == 0) {
                     EndpointQueue.getInstance().offer(endpoint.getLocalName(), endpoint);

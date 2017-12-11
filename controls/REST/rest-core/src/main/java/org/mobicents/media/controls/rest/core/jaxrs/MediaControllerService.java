@@ -60,11 +60,11 @@ public class MediaControllerService implements IMediaServerControllerService {
             Logger.getLogger(MediaControllerService.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (memberDto.isAnnouncementNeeded()) {
-            mediaSessionMember.getResources().get(ComponentType.PLAYER).activate();
+            mediaSessionMember.getResource(ComponentType.PLAYER).activate();
         }
         if (memberDto.isDtmfDetectorNeeded()) {
             try {
-                ((DtmfDetector) mediaSessionMember.getResources().get(ComponentType.DTMF_DETECTOR)).addListener(new DtmfDetectorListener() {
+                ((DtmfDetector) mediaSessionMember.getResource(ComponentType.DTMF_DETECTOR)).addListener(new DtmfDetectorListener() {
                     public void process(DtmfEvent event) {
                         try {
                             mediaSessionMember.connectToPeer();
@@ -78,7 +78,7 @@ public class MediaControllerService implements IMediaServerControllerService {
             }
         }
         if (memberDto.isRecorderNeeded()) {
-            mediaSessionMember.getResources().get(ComponentType.RECORDER).activate();
+            mediaSessionMember.getResource(ComponentType.RECORDER).activate();
         }
     }
 

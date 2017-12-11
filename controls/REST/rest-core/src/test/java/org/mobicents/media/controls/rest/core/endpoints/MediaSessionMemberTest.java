@@ -18,11 +18,19 @@
  */
 package org.mobicents.media.controls.rest.core.endpoints;
 
+import java.awt.Component;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermissions;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mobicents.media.ComponentType;
 import org.mobicents.media.controls.rest.api.EndpointType;
 import org.mobicents.media.controls.rest.api.dto.MediaSessionMemberDto;
 import org.mobicents.media.controls.rest.core.factory.EndpointFactory;
@@ -43,6 +51,7 @@ import org.mobicents.media.server.spi.ConnectionType;
 import org.mobicents.media.server.spi.Endpoint;
 import org.mobicents.media.server.spi.EndpointInstaller;
 import org.mobicents.media.server.spi.ServerManager;
+import org.mobicents.media.server.spi.recorder.Recorder;
 
 /**
  *
@@ -74,6 +83,7 @@ public class MediaSessionMemberTest {
      */
     @Test
     public void testInit() throws Exception, Throwable {
+        System.setProperty("org.apache.logging.log4j.level", "DEBUG");
         System.out.println("init");
 
         Server server = new Server();
@@ -135,8 +145,17 @@ public class MediaSessionMemberTest {
         Connection createConnection2 = poll.createConnection(ConnectionType.LOCAL, Boolean.TRUE);
         instance.setLocalCnfDestConnection(createConnection2);
         instance.connectToPeer();
+        Recorder get = (Recorder) instance.getResource(ComponentType.RECORDER);
+        String toURI = File.createTempFile("audio",".wav").getCanonicalPath();
+        get.setRecordDir(Files.createTempDirectory("mms").toString());
+        get.setRecordFile("audio.wav", true);
+        get.activate();
+//        Thread.sleep(10000);
+        
         instance.disconnectFromPeer();
         System.out.println(poll.getActiveConnectionsCount());
+        
+        instance.destroy();
 
     }
 
